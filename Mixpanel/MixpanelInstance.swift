@@ -851,9 +851,6 @@ extension MixpanelInstance {
      */
     open func flush(completion: (() -> Void)? = nil) {
         
-        NSLog("\(self.eventsQueue.count)  AAAA")
-        NSLog("\(self.people.peopleQueue.count)  AAAA")
-        
         self.archive()
 
         networkQueue.async() {
@@ -865,9 +862,6 @@ extension MixpanelInstance {
             self.trackingQueue.sync {
                 self.copyEventsQueue = self.eventsQueue
                 self.copyPeopleQueue = self.people.peopleQueue
-                
-                NSLog("\(self.copyEventsQueue.count)  CCCC")
-                NSLog("\(self.copyPeopleQueue.count)  CCCC")
 
                 self.eventsQueue.removeAll()
                 self.people.peopleQueue.removeAll()
@@ -885,15 +879,13 @@ extension MixpanelInstance {
             self.trackingQueue.sync {
                 self.eventsQueue = self.copyEventsQueue + self.eventsQueue
                 self.people.peopleQueue = self.copyPeopleQueue + self.copyPeopleQueue
+                
                 self.copyEventsQueue.removeAll()
                 self.copyPeopleQueue.removeAll()
-                NSLog("\(self.eventsQueue.count)  BBBB")
-                NSLog("\(self.people.peopleQueue.count)  BBBB")
             }
+            
             self.archive()
 
-
-            
             if let completion = completion {
                 DispatchQueue.main.async(execute: completion)
             }
