@@ -232,7 +232,7 @@ open class MixpanelInstance: CustomDebugStringConvertible, FlushDelegate, AEDele
     var taskId = UIBackgroundTaskInvalid
     #endif // os(OSX)
     let flushInstance: Flush
-    var trackInstance: Track! = nil
+    var trackInstance: Track?
     #if DECIDE
     let decideInstance: Decide
     let automaticEvents = AutomaticEvents()
@@ -924,7 +924,7 @@ extension MixpanelInstance {
     open func track(event: String?, properties: Properties? = nil) {
         let epochInterval = Date().timeIntervalSince1970
         trackingQueue.async() {
-            self.trackInstance.track(event: event,
+            self.trackInstance?.track(event: event,
                                      properties: properties,
                                      eventsQueue: &self.eventsQueue,
                                      timedEvents: &self.timedEvents,
@@ -1021,7 +1021,7 @@ extension MixpanelInstance {
     open func time(event: String) {
         let startTime = Date().timeIntervalSince1970
         trackingQueue.async() {
-            self.trackInstance.time(event: event, timedEvents: &self.timedEvents, startTime: startTime)
+            self.trackInstance?.time(event: event, timedEvents: &self.timedEvents, startTime: startTime)
         }
     }
 
@@ -1042,7 +1042,7 @@ extension MixpanelInstance {
      */
     open func clearTimedEvents() {
         trackingQueue.async() {
-            self.trackInstance.clearTimedEvents(&self.timedEvents)
+            self.trackInstance?.clearTimedEvents(&self.timedEvents)
         }
     }
 
@@ -1060,7 +1060,7 @@ extension MixpanelInstance {
      */
     open func clearSuperProperties() {
         dispatchAndTrack() {
-            self.trackInstance.clearSuperProperties(&self.superProperties)
+            self.trackInstance?.clearSuperProperties(&self.superProperties)
         }
     }
 
@@ -1077,7 +1077,7 @@ extension MixpanelInstance {
      */
     open func registerSuperProperties(_ properties: Properties) {
         dispatchAndTrack() {
-            self.trackInstance.registerSuperProperties(properties,
+            self.trackInstance?.registerSuperProperties(properties,
                                                        superProperties: &self.superProperties)
         }
     }
@@ -1095,7 +1095,7 @@ extension MixpanelInstance {
     open func registerSuperPropertiesOnce(_ properties: Properties,
                                             defaultValue: MixpanelType? = nil) {
         dispatchAndTrack() {
-            self.trackInstance.registerSuperPropertiesOnce(properties,
+            self.trackInstance?.registerSuperPropertiesOnce(properties,
                                                            superProperties: &self.superProperties,
                                                            defaultValue: defaultValue)
         }
@@ -1116,7 +1116,7 @@ extension MixpanelInstance {
      */
     open func unregisterSuperProperty(_ propertyName: String) {
         dispatchAndTrack() {
-            self.trackInstance.unregisterSuperProperty(propertyName,
+            self.trackInstance?.unregisterSuperProperty(propertyName,
                                                        superProperties: &self.superProperties)
         }
     }
