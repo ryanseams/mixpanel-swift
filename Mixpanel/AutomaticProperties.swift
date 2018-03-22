@@ -9,43 +9,45 @@
 import Foundation
 
 #if !os(OSX)
-    import UIKit
+import UIKit
 #else
-    import Cocoa
+import Cocoa
 #endif // os(OSX)
 
 #if os(iOS)
-    import CoreTelephony
-#endif // os(iOS
+import CoreTelephony
+#endif // os(iOS)
 
 class AutomaticProperties {
     #if os(iOS)
     static let telephonyInfo = CTTelephonyNetworkInfo()
     #endif // os(iOS)
+
+    static let automaticPropertiesLock = ReadWriteLock(label: "automaticPropertiesLock")
     
     static var properties: InternalProperties = {
         objc_sync_enter(AutomaticProperties.self); defer { objc_sync_exit(AutomaticProperties.self) }
         var p = InternalProperties()
         #if !os(OSX)
-            let size = UIScreen.main.bounds.size
-            p["$screen_height"]     = Int(size.height)
-            p["$screen_width"]      = Int(size.width)
-            p["$os"]                = UIDevice.current.systemName
-            p["$os_version"]        = UIDevice.current.systemVersion
-            
-            #if os(iOS)
-                p["$carrier"] = AutomaticProperties.telephonyInfo.subscriberCellularProvider?.carrierName
-            #endif // os(iOS)
-            var ifa: String? = AutomaticProperties.IFA()
+        let size = UIScreen.main.bounds.size
+        p["$screen_height"]     = Int(size.height)
+        p["$screen_width"]      = Int(size.width)
+        p["$os"]                = UIDevice.current.systemName
+        p["$os_version"]        = UIDevice.current.systemVersion
+        
+        #if os(iOS)
+            p["$carrier"] = AutomaticProperties.telephonyInfo.subscriberCellularProvider?.carrierName
+        #endif // os(iOS)
+        var ifa: String? = AutomaticProperties.IFA()
             
         #else
-            if let size = NSScreen.main()?.frame.size {
-                p["$screen_height"]     = Int(size.height)
-                p["$screen_width"]      = Int(size.width)
-            }
-            p["$os"]                = "macOS"
-            p["$os_version"]        = ProcessInfo.processInfo.operatingSystemVersionString
-            let ifa = AutomaticProperties.macOSIdentifier()
+        if let size = NSScreen.main()?.frame.size {
+            p["$screen_height"]     = Int(size.height)
+            p["$screen_width"]      = Int(size.width)
+        }
+        p["$os"]                = "macOS"
+        p["$os_version"]        = ProcessInfo.processInfo.operatingSystemVersionString
+        let ifa = AutomaticProperties.macOSIdentifier()
         #endif // os(OSX)
         
         let infoDict = Bundle.main.infoDictionary
@@ -63,7 +65,7 @@ class AutomaticProperties {
         
         return p
     }()
-    
+
     static var peopleProperties: InternalProperties = {
         objc_sync_enter(AutomaticProperties.self); defer { objc_sync_exit(AutomaticProperties.self) }
         var p = InternalProperties()
@@ -74,11 +76,11 @@ class AutomaticProperties {
         }
         p["$ios_device_model"]  = AutomaticProperties.deviceModel()
         #if !os(OSX)
-            p["$ios_version"]       = UIDevice.current.systemVersion
-            var ifa: String? = AutomaticProperties.IFA()
+        p["$ios_version"]       = UIDevice.current.systemVersion
+        var ifa: String? = AutomaticProperties.IFA()
         #else
-            p["$ios_version"]       = ProcessInfo.processInfo.operatingSystemVersionString
-            let ifa = AutomaticProperties.macOSIdentifier()
+        p["$ios_version"]       = ProcessInfo.processInfo.operatingSystemVersionString
+        let ifa = AutomaticProperties.macOSIdentifier()
         #endif // os(OSX)
         p["$ios_lib_version"]   = AutomaticProperties.libVersion()
         p["$swift_lib_version"] = AutomaticProperties.libVersion()
@@ -88,7 +90,7 @@ class AutomaticProperties {
         
         return p
     }()
-    
+
     #if os(iOS)
     class func getCurrentRadio() -> String? {
         var radio = telephonyInfo.currentRadioAccessTechnology
@@ -101,7 +103,7 @@ class AutomaticProperties {
         return radio
     }
     #endif // os(iOS)
-    
+
     class func deviceModel() -> String {
         var systemInfo = utsname()
         uname(&systemInfo)
@@ -116,11 +118,11 @@ class AutomaticProperties {
         }
         return ""
     }
-    
+
     class func libVersion() -> String? {
         return Bundle(for: self).infoDictionary?["CFBundleShortVersionString"] as? String
     }
-    
+
     #if !os(OSX)
     class func IFA() -> String? {
         var ifa: String? = nil
@@ -157,6 +159,5 @@ class AutomaticProperties {
         return (serialNumberAsCFString?.takeUnretainedValue() as? String)
     }
     #endif // os(OSX)
-    
 }
 
